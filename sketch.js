@@ -1,165 +1,90 @@
-// const canvas = document.getElementById('gameCanvas');
-// const ctx = canvas.getContext('2d');
-// const width = 400;
-// const height = 400;
-// const gridSize = 40;
-// const numObstacles = 10;
-
-// let playerX = 0;
-// let playerY = 0;
-// let destinationX = gridSize - 1;
-// let destinationY = gridSize - 1;
-// let obstacles = [];
-
-// function initializeObstacles() {
-//     for (let i = 0; i < numObstacles; i++) {
-//         let x = Math.floor(Math.random() * gridSize);
-//         let y = Math.floor(Math.random() * gridSize);
-//         obstacles.push({ x, y });
-//     }
-// }
-
-// function drawGrid() {
-//     ctx.clearRect(0, 0, width, height);
-//     for (let x = 0; x < width; x += gridSize) {
-//         for (let y = 0; y < height; y += gridSize) {
-//             ctx.strokeStyle = 'black';
-//             ctx.strokeRect(x, y, gridSize, gridSize);
-//         }
-//     }
-// }
-
-// function drawPlayer() {
-//     ctx.fillStyle = 'blue';
-//     ctx.fillRect(playerX * gridSize, playerY * gridSize, gridSize, gridSize);
-// }
-
-// function drawDestination() {
-//     ctx.fillStyle = 'green';
-//     ctx.fillRect(destinationX * gridSize, destinationY * gridSize, gridSize, gridSize);
-// }
-
-// function drawObstacles() {
-//     ctx.fillStyle = 'red';
-//     for (let obstacle of obstacles) {
-//         ctx.fillRect(obstacle.x * gridSize, obstacle.y * gridSize, gridSize, gridSize);
-//     }
-// }
-
-// function checkCollision(x, y) {
-//     return obstacles.some(obstacle => obstacle.x === x && obstacle.y === y);
-// }
-
-// function movePlayer(dx, dy) {
-//     const newX = playerX + dx;
-//     const newY = playerY + dy;
-
-//     if (newX >= 0 && newX < gridSize && newY >= 0 && newY < gridSize && !checkCollision(newX, newY)) {
-//         playerX = newX;
-//         playerY = newY;
-//     }
-// }
-
-// initializeObstacles();
-
-// document.addEventListener('keydown', event => {
-//     switch (event.key) {
-//         case 'ArrowUp':
-//             movePlayer(0, -1);
-//             break;
-//         case 'ArrowDown':
-//             movePlayer(0, 1);
-//             break;
-//         case 'ArrowLeft':
-//             movePlayer(-1, 0);
-//             break;
-//         case 'ArrowRight':
-//             movePlayer(1, 0);
-//             break;
-//     }
-// });
-
-// function gameLoop() {
-//     drawGrid();
-//     drawPlayer();
-//     drawDestination();
-//     drawObstacles();
-
-//     if (playerX === destinationX && playerY === destinationY) {
-//         alert('Congratulations! You\'ve reached the destination!');
-//     } else {
-//         requestAnimationFrame(gameLoop);
-//     }
-// }
-
-// gameLoop();
-
-// class Obstacle{
-//     constructor(x,y,r,g,b,speed,size,){
-//         this.xPos = x;
-//         this.yPos = y;
-//         this.redValue = r;
-//         this.greenValue = g;
-//         this.blueValue = b;
-//         this.speedValue = speed;
-//         this.sizeValue = size;
-//     }
-// }
-
-
-function setup(){
+function setup() {
     createCanvas(750, 500);
     rectMode(CENTER);
 }
 
 let myXPos = 50;
 let myYPos = 250;
-let obsY = 0;
+
+let yPos1 = 50;
+let yPos2 = 450;
+let topDirection = 1;
+let bottomDirection = -1;
 
 let coinX = 700;
 let coinY = 250;
 
 let score = 0;
+let isGameOver = false;
+let win = false;
 
-function draw(){
+function draw() {
     background(0);
 
-    fill(255, 0, 0);
-    circle(myXPos, myYPos, 30);
-
-
-    // if (dist(myXPos, myYPos, coin1X, coin1Y) < 15) {
-    //     coin1X = -100;
-    //     coin1Y = -100;
-    // }
-
-    // if (dist(myXPos, myYPos, coin2X, coin2Y) < 15) {
-    //     coin2X = -100;
-    //     coin2Y = -100;
-    // }
-
-   
-    fill(0, 0, 255);
-    square(150, 50+obsY, 30);
-    square(225, 450+obsY, 30);
-    square(300, 50+obsY, 30);
-    square(375, 450+obsY, 30);
-    square(450, 50+obsY, 30);
-    square(525, 450+obsY, 30);
-    square(600, 50+obsY, 30);
-    
-
+    //Coin
     fill(255, 255, 0);
     circle(coinX, coinY, 30);
-    // coinX += coinSpeed;
-    // if (coinX > width - 15 || coinX < 15) {
-    //     coinSpeed *= -1;
-    // }
+    fill(255, 255, 0);
+    
+    //Red Circle
+    fill(255, 0, 0);
+    circle(myXPos, myYPos, 30);
+    
+    //Collision Detection between Red Circle and Coin
+    if (dist(myXPos, myYPos, coinX, coinY) < 30) {
+        coinX = -100;
+        coinY = -100;
+        score += 100;
+        Win();
+        return;
+    }
 
-    // if (dist(myXPos, myYPos, coinX, coinY) < 30) {
-    //     gameOver();
-    // }
+    //Blue Squares
+    fill(0, 0, 255);
+    square(150, yPos1, 30);
+    square(225, yPos2, 30);
+    square(300, yPos1, 30);
+    square(375, yPos2, 30);
+    square(450, yPos1, 30);
+    square(525, yPos2, 30);
+    square(600, yPos1, 30);
 
+    //Blue Square Movement
+    yPos1 += 7 * topDirection;
+    yPos2 -= 7 * bottomDirection;
+
+    if(yPos1<26||yPos1>474){
+        topDirection*=-1;
+     }
+     if(yPos2<26||yPos2>474){
+        bottomDirection*=-1;
+     }
+
+     //Collision Detection between Red Circle and Blue Square
+     for (let i = 0; i < 7; i++) {
+        const squareX = 150 + i * 75;
+        const distanceTop = dist(myXPos, myYPos, squareX, yPos1);
+        if (distanceTop < 30) {
+            gameOver();
+            return;
+        }
+    }
+    for (let i = 0; i < 7; i++) {
+        const squareX = 150 + i * 75;
+        const distanceBottom = dist(myXPos, myYPos, squareX, yPos2);
+        if (distanceBottom < 30) {
+            gameOver();
+            return;
+        }
+    }
+
+    //Score Display
+    fill(255);
+    textSize(24);
+    textAlign(LEFT, TOP);
+    text("Score: " + score, 20, 20);
+
+    //Movement Keys
     if (keyIsDown(LEFT_ARROW)){
         myXPos -= 3;
     }
@@ -174,19 +99,44 @@ function draw(){
     }
 }
 
+//End Screen - Lose
 function gameOver() {
+    isGameOver = true;
     noLoop();
     fill(255);
     textSize(40);
     textAlign(CENTER);
-    text("Game Over", width / 2, height / 2);
+    text("Game Over", width / 2, height / 2 - 100);
+    textSize(20);
+    text("Final Score: "+score, width/2, height/2 - 50);
+    text("Click to Restart", width/2, height/2 -20);
 }
 
-// function restartOption(){
-    
-// }
- 
-// function mouseClicked() {
+//End Screen - Win
+function Win(){
+    win = true;
+    noLoop();
+    fill(255);
+    textSize(40);
+    textAlign(CENTER);
+    text("You Win!!", width / 2, height / 2 - 100);
+    textSize(20);
+    text("Final Score: "+score, width/2, height/2 -50);
+    text("Click to Restart", width/2, height/2 - 20);
+}
 
-// }
 
+function mouseClicked() {
+    if (isGameOver||win) {
+        yPos1 = 50;
+        yPos2 = 450;
+        coinX = 700;
+        coinY = 250;
+        score = 0;
+        myXPos = 50;
+        myYPos = 250;
+        isGameOver = false;
+        win = false;
+        loop();
+    }
+}
